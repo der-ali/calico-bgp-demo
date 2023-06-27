@@ -18,16 +18,22 @@
 #===============================================================================
 
 set -o nounset                              # Treat unset variables as an error
-cluster="cluster1"
+declare -A clusters
+clusters[cluster1]="10.200.0.0/16 10.201.0.0/16"
+clusters[cluster2]="10.210.0.0/16 10.211.0.0/16"
+
 
 provision_minikube() {
-minikube -p $cluster start  --extra-config=kubeadm.pod-network-cidr=10.200.0.0/16 --service-cluster-ip-range=10.201.0.0/16 --network=calico_cluster_peer_demo --container-runtime=containerd --nodes 4 --driver=kvm --memory 2048 --wait=all
+  for cluster in "${!clusters[@]}"; do
+    minikube -p $cluster start  --extra-config=kubeadm.pod-network-cidr=${clusters[$key]%% *} --service-cluster-ip-range=${clusters[$key]#* } --network=calico_cluster_peer_demo --container-runtime=containerd --nodes 4 --driver=kvm --memory 2048 --wait=all
+  done
 }
 
 
 # Function to check if a Kubernetes node is healthy
 check_node_health() {
     local node=$1
+    local cluster=$2
     local health_status=$(kubectl --cluster=$cluster get node $node -o jsonpath='{range @.status.conditions[-1:]}{.status}{end}')
 
     if [[ "$health_status" != "True" ]]; then
@@ -40,8 +46,11 @@ check_node_health() {
 
 check_nodes_health() {
   # Loop through each node and check its health
-  for node in ${NODES}; do
-      check_node_health ${node}
+  for cluster in "${!clusters[@]}"; do
+    local nodes=$(get_nodes ${cluster})
+    for node in $nodes; do
+      check_node_health ${node} ${cluster}
+    done
   done
 }
 
@@ -87,11 +96,15 @@ apply_bgp_rr_config() {
 
 }
 
+get_nodes() {
+      local cluster=$1
+      kubectl --cluster=$cluster get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+}
+
 provision_minikube
-NODES=$(kubectl --cluster=$cluster get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
-RR_NODES=$(kubectl --cluster=$cluster get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'| tail -2)
+#RR_NODES=$(kubectl --cluster=$cluster get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'| tail -2)
 check_nodes_health
-setup_cni
-install_calicoctl
-apply_bgp_rr_config
+#setup_cni
+#install_calicoctl
+#apply_bgp_rr_config
 
