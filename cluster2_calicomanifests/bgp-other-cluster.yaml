@@ -1,7 +1,7 @@
 apiVersion: projectcalico.org/v3
 kind: BGPPeer
 metadata:
-  name: cluster-a-m03
+  name: cluster1-m03
 spec:
   asNumber: 64512
   nodeSelector: route-reflector == 'true'
@@ -10,7 +10,7 @@ spec:
 apiVersion: projectcalico.org/v3
 kind: BGPPeer
 metadata:
-  name: cluster-a-m04
+  name: cluster1-m04
 spec:
   asNumber: 64512
   nodeSelector: route-reflector == 'true'
