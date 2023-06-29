@@ -2,7 +2,7 @@
 
 This demo uses minikube to create 2 Kubernetes clusters (4 nodes) each and configures calico with route reflectors to establish a flat network between the two clusters.
 
-<img src="/home/ali/Github/public/calico-bgp-demo/assets/FinalMinikubeBGPLab.drawio.png" alt="cluster" style="zoom: 67%;" />
+<img src="./assets/FinalMinikubeBGPLab.drawio.png" alt="cluster" style="zoom: 67%;" />
 
 Usage:
 ```
