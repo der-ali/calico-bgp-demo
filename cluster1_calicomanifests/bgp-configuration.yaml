@@ -6,6 +6,6 @@ spec:
   asNumber: 64512
   listenPort: 179
   logSeverityScreen: Info
-  nodeToNodeMeshEnabled: true
+  nodeToNodeMeshEnabled: false
   serviceClusterIPs:
   - cidr: 10.201.0.0/16

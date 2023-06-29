@@ -106,8 +106,10 @@ apply_bgp_rr_config() {
     # Apply a RR configuration manifest in both clusters instructing all nodes to establish a BGP peering with any node with that label
     calicoctl apply -f ${cluster}_calicomanifests/bgp-rr-configuration.yaml
     # Disable the automatic full mesh as it has been replaced by RRs
-    calicoctl patch bgpconfiguration default -p '{"spec": {"nodeToNodeMeshEnabled": false}}'
     #kubectl --cluster=$cluster uncordon $node
+    # Prevent an IP pool from being used automatically by Calico IPAM
+    # so that the IPs won’t actually be assigned to pods on the wrong cluster
+    calicoctl apply -f ${cluster}_calicomanifests/disabled-othercluster-ippools.yaml
   done
 
 }
@@ -178,4 +180,5 @@ for cluster in "${!clusters[@]}"; do
   check_bgp_status $cluster
   apply_bgp_rr_config $cluster
   apply_templates $cluster
+  check_bgp_status $cluster
 done

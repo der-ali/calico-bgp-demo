@@ -13,5 +13,5 @@ metadata:
   name: disabled-servicecidr-for-clusterb
 spec:
   cidr: 10.211.0.0/16
-  disabled: true
+  nodeSelector: !all()
   natOutgoing: false

@@ -13,5 +13,6 @@ metadata:
   name: disabled-servicecidr-for-clustera
 spec:
   cidr: 10.201.0.0/16
-  disabled: true
+  # Prevent an IP pool from being used automatically by Calico IPAM, while still allowing it to be used manually for static assignments
+  nodeSelector: !all()  
   natOutgoing: false
