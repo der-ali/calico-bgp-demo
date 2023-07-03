@@ -16,17 +16,19 @@
 set -o nounset
 
 declare -A clusters
-clusters[cluster1]="10.200.0.0/16 10.201.0.0/16"
-clusters[cluster2]="10.210.0.0/16 10.211.0.0/16"
+clusters[cluster1]="10.200.0.0/16 10.201.0.0/16 4"
+clusters[cluster2]="10.210.0.0/16 10.211.0.0/16 4"
 
 
 provision_minikube() {
 for cluster in "${!clusters[@]}"; do
   # use bash parameter expansion as a workaround to get the first and second element
   # associative arrays can only hold scalar values and not arrays
-  local pod_network_cidr=${clusters[$cluster]%% *}
-  local service_cluster_ip_range=${clusters[$cluster]#* }
-    minikube -p $cluster start  --extra-config=kubeadm.pod-network-cidr=${pod_network_cidr} --service-cluster-ip-range=${service_cluster_ip_range} --network=calico_cluster_peer_demo --container-runtime=containerd --nodes 4 --driver=kvm --memory 2048 --wait=all
+  local values=(${clusters[$cluster]})
+  local pod_network_cidr=${values[0]}
+  local service_cluster_ip_range=${values[1]}
+  local nodes=${values[2]}
+    minikube -p $cluster start  --extra-config=kubeadm.pod-network-cidr=${pod_network_cidr} --service-cluster-ip-range=${service_cluster_ip_range} --network=calico_cluster_peer_demo --container-runtime=containerd --nodes ${nodes} --driver=kvm --memory 2048 --wait=all
   done
 }
 
